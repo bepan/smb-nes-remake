@@ -28,17 +28,20 @@ class Game {
       [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 10,  0,  0,  0, 11, 10, 11, 10, 11,  0,  0,  0,  0,  0,  0,  0],
       [ 0,  0,  9,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
       [ 0,  5,  6,  8,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  9,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-      [ 5,  6,  7,  6,  8,  0,  0,  0,  0,  0,  0,  2,  3,  3,  3,  4,  5,  6,  8,  0,  0,  0,  0,  2,  3,  4,  0,  0,  0,  0,  0,  0],
+      [ 5,  6,  7,  6,  8,  0,  0,  0,  0,  0,  0,  2,  3,  3,  3,  4,  5,  6,  8,  0,  0, 16,  0,  2,  3,  4,  0,  0,  0,  0,  0,  0],
       [ 1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
       [ 1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1]
     ];
   }
 
   init() {
-    // Init jump sound
+    // SOUNDS
+    // =============================================================
     this.jumpSound = new Sound('assets/sounds/jump_small.wav');
     this.mainTheme = new Sound('assets/sounds/main_theme.mp3', true);
 
+    // SPRITES
+    // =============================================================
     // Mario Right sprites
     this.mario0 = new Image();
     this.mario0.src = 'assets/mario_0.png';
@@ -76,7 +79,7 @@ class Game {
       2: [this.marioRun1Left, this.marioRun2Left, this.marioRun3Left]
     };
 
-    this.player = new GameObject(this.mario0, 3*32, 13*32, 0, 0, 32, 32, 0.5);
+    this.player = new GameObject(this.mario0, 3*32, 13*32, 0, 0, 32, 32);
 
     this.skyTile = new Image();
     this.skyTile.src = 'assets/sky_tile.png';
@@ -115,19 +118,23 @@ class Game {
     this.nube4 = new Image();
     this.nube4.src = 'assets/nnube4.png';
 
-    // Init all collidable game objects
+    // ENEMY SPRITES
+    const goomba = new Image();
+    goomba.src = 'assets/goomba.png';
+
+    // Init all game pieces
     for (let row = 0; row < (this.canvas.height / 32); row++) {
       for (let col = 0; col < (this.canvas.width / 32); col++) {
         // If its platform
         const objectType = this.gameBoard[row][col];
-        let image;
-        if ([1, 10, 11].includes(objectType)) {
+        let gameObject, image, width = 32;
+        if ([1, 10, 11, 16].includes(objectType)) {
           switch(objectType) {
-            case 1: image = this.floor; break;
-            case 10: image = this.item; break;
-            case 11: image = this.brick; break;
+            case 1:  gameObject = new GameObject(this.floor, col * 32, row * 32, 0, 0, width, 32); break;
+            case 10: gameObject = new GameObject(this.item, col * 32, row * 32, 0, 0, width, 32); break;
+            case 11: gameObject = new GameObject(this.brick, col * 32, row * 32, 0, 0, width, 32); break;
+            case 16: gameObject = new GameObject(goomba, col * 32, row * 32, -1, 0, width, 32, 2, 7); break;
           }
-          const gameObject = new GameObject(image, col * 32, row * 32, 0, 0, 32, 32);
           this.gameObjects.push(gameObject);
         }
       }
@@ -135,7 +142,6 @@ class Game {
 
     // Init Controllers
     window.addEventListener('keydown', (e) => {
-      console.log(e.keyCode);
       if (e.keyCode === 13) {
         this.gameStarted = true;
         this.mainTheme.play();
@@ -164,6 +170,12 @@ class Game {
       this.ctx.closePath();
       return;
     }
+
+    // Draw the blue sky
+    this.ctx.beginPath();
+    this.ctx.fillStyle = '#6B8CFF';
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    this.ctx.closePath();
 
     // Draw Gameboard
     for (let row = 0; row < (this.canvas.height / 32); row++) {
@@ -245,12 +257,14 @@ class Game {
       this.jumpSound.play();
     }
 
-    // Set Object positions realtive to player
+    // Update all game Objects
     for (let o of this.gameObjects) {
+      o.update();
+      o.checkScreenCollision(this.canvas);
       o.setPositionBasedOnPlayer(this.player);
     }
 
-    // Animate Player Image
+    // Change Player Image depending on moves
     if (!this.keys[39] && !this.keys[37] && !this.player.jumping) {
       this.player.image = this.marioStatic[this.player.dir];
 
@@ -292,6 +306,9 @@ class Game {
           this.player.ascending = false;
           this.player.jumpingSpeed = -15;
           this.player.y = o.y + o.height;
+
+          // Platform jump
+          // o.platformJumping = true;
         }
 
         if (o.positionBasedOnPlayer === Position.MIDDLE) {
@@ -306,7 +323,7 @@ class Game {
           this.player.gravitySpeed = 0;
           this.player.jumping = false;
         }
-        break;
+
       }
 
     }
