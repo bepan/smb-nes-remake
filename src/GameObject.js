@@ -2,13 +2,16 @@ import { Position } from './position.enum';
 
 export class GameObject {
 
-  constructor(image, x, y, dx, dy, width, height, numberOfFrames = 1, animationFrequency = 2) {
+  constructor(image, x, y, dx, dy, width, height,
+    imageFrameX = 0, 
+    imageFrameY = 0,
+    numberOfFrames = 1, 
+    animationFrequency = 2
+  ) {
     this.x = x;
-    this.xClone = this.x;
-
     this.y = y;
-    this.yClone = this.y;
-
+    // this.xClone = this.x;
+    // this.yClone = this.y;
     this.dx = dx;
     this.dy = dy;
     this.width = width;
@@ -21,14 +24,16 @@ export class GameObject {
     this.jumping = false;
     this.ascending = false;
     this.dir = 1; // right
+
     this.imageFrame = 0;
-    this.currImageFrame = 0;
+    this.imageFrameX = imageFrameX;
+    this.imageFrameY = imageFrameY;
+
     this.moving = false;
     this.gameLoopCounter = 0;
     this.animationFrequency = animationFrequency;
     this.positionBasedOnPlayer = -1;
     this.numberOfFrames = numberOfFrames;
-
     // Platform jumping
     // this.platformJumping = false;
 
@@ -36,7 +41,7 @@ export class GameObject {
 
   draw(ctx) {
     ctx.beginPath();
-    ctx.drawImage(this.image, this.currImageFrame * 32, 0, 32, 32, this.x, this.y, this.width, this.height);
+    ctx.drawImage(this.image, this.imageFrameX * 32, this.imageFrameY * 32, 32, 32, this.x, this.y, this.width, this.height);
     ctx.closePath();
   }
 
@@ -44,9 +49,9 @@ export class GameObject {
     this.x += this.dx;
     this.y += this.dy;
 
-    if (++this.gameLoopCounter === this.animationFrequency) {
+    if (this.numberOfFrames > 1 && ++this.gameLoopCounter === this.animationFrequency) {
       this.gameLoopCounter = 0;
-      this.currImageFrame = ++this.currImageFrame % this.numberOfFrames;
+      this.imageFrameX = ++this.imageFrameX % this.numberOfFrames;
     }
 
     // Move later to platform objects-----

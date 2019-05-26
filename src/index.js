@@ -25,10 +25,10 @@ class Game {
       [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
       [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
       [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-      [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 10,  0,  0,  0, 11, 10, 11, 10, 11,  0,  0,  0,  0,  0,  0,  0],
-      [ 0,  0,  9,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-      [ 0,  5,  6,  8,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  9,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-      [ 5,  6,  7,  6,  8,  0,  0,  0,  0,  0,  0,  2,  3,  3,  3,  4,  5,  6,  8,  0,  0, 16,  0,  2,  3,  4,  0,  0,  0,  0,  0,  0],
+      [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 10,  0,  0,  0, 11, 10, 11, 10, 11,  0,  0,  0, 17, 18,  0,  0],
+      [ 0,  0,  9,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 19, 20,  0,  0],
+      [ 0,  5,  6,  8,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  9,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 19, 20,  0,  0],
+      [ 5,  6,  7,  6,  8,  0,  0,  0,  0,  0,  0,  2,  3,  3,  3,  4,  5,  6,  8,  0,  0, 16,  0,  2,  3,  4,  0,  0, 19, 20,  0,  0],
       [ 1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
       [ 1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1]
     ];
@@ -118,6 +118,9 @@ class Game {
     this.nube4 = new Image();
     this.nube4.src = 'assets/nnube4.png';
 
+    const pipe = new Image();
+    pipe.src = 'assets/pipe.png';
+
     // ENEMY SPRITES
     const goomba = new Image();
     goomba.src = 'assets/goomba.png';
@@ -127,16 +130,21 @@ class Game {
       for (let col = 0; col < (this.canvas.width / 32); col++) {
         // If its platform
         const objectType = this.gameBoard[row][col];
-        let gameObject, image, width = 32;
-        if ([1, 10, 11, 16].includes(objectType)) {
-          switch(objectType) {
-            case 1:  gameObject = new GameObject(this.floor, col * 32, row * 32, 0, 0, width, 32); break;
-            case 10: gameObject = new GameObject(this.item, col * 32, row * 32, 0, 0, width, 32); break;
-            case 11: gameObject = new GameObject(this.brick, col * 32, row * 32, 0, 0, width, 32); break;
-            case 16: gameObject = new GameObject(goomba, col * 32, row * 32, -1, 0, width, 32, 2, 7); break;
-          }
+        let gameObject, width = 32;
+        switch(objectType) {
+          case 1:  gameObject = new GameObject(this.floor, col * 32, row * 32, 0, 0, width, 32); break;
+          case 10: gameObject = new GameObject(this.item, col * 32, row * 32, 0, 0, width, 32); break;
+          case 11: gameObject = new GameObject(this.brick, col * 32, row * 32, 0, 0, width, 32); break;
+          case 16: gameObject = new GameObject(goomba, col * 32, row * 32, -1, 0, width, 32, undefined, undefined, 2, 7); break;
+          case 17: gameObject = new GameObject(pipe, col * 32, row * 32, 0, 0, width, 32, 0, 0); break;
+          case 18: gameObject = new GameObject(pipe, col * 32, row * 32, 0, 0, width, 32, 1, 0); break;
+          case 19: gameObject = new GameObject(pipe, col * 32, row * 32, 0, 0, width, 32, 0, 1); break;
+          case 20: gameObject = new GameObject(pipe, col * 32, row * 32, 0, 0, width, 32, 1, 1); break;
+        }
+        if (gameObject) {
           this.gameObjects.push(gameObject);
         }
+        
       }
     }
 
@@ -302,20 +310,21 @@ class Game {
     for (let o of this.gameObjects) {
 
       if ( (this.player.y + this.player.height > o.y && this.player.y < o.y + o.height) && (this.player.x + this.player.width > o.x && this.player.x < o.x + o.width) ) {
-        if (o.positionBasedOnPlayer === Position.ABOVE) {
-          this.player.ascending = false;
-          this.player.jumpingSpeed = -15;
-          this.player.y = o.y + o.height;
-
-          // Platform jump
-          // o.platformJumping = true;
-        }
-
         if (o.positionBasedOnPlayer === Position.MIDDLE) {
           switch(this.player.dir) {
             case 1: this.player.x = o.x - this.player.width; break;
             case 2: this.player.x = o.x + o.width; break;
           }
+        }
+        
+        if (o.positionBasedOnPlayer === Position.ABOVE) {
+          this.player.ascending = false;
+          this.player.jumpingSpeed = -15;
+          this.player.y = o.y + o.height;
+          console.log('collision above...');
+
+          // Platform jump
+          // o.platformJumping = true;
         }
 
         if (o.positionBasedOnPlayer === Position.BELOW) {
